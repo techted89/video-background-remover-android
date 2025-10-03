@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Background Remover</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <h1>Batch Image Background Remover</h1>
+    <p>Upload multiple JPG or JPEG files, select the background color to remove, and click the button.</p>
+
+    <div id="app">
+        <div class="upload-section">
+            <input type="file" id="image-input" accept="image/jpeg,image/jpg" multiple>
+            <div class="controls">
+                <label for="color-picker">Background Color:</label>
+                <input type="color" id="color-picker" value="#ffffff">
+                <button id="process-button">Remove Backgrounds</button>
+            </div>
+        </div>
+
+        <h2>Uploaded Images</h2>
+        <div id="gallery" class="gallery-container"></div>
+
+        <h2>Processed Images</h2>
+        <div id="results" class="gallery-container"></div>
+
+        <button id="download-button" style="display:none;">Download All as ZIP</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
