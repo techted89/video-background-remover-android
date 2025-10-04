@@ -1,54 +1,67 @@
+/* General Body and Layout */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #f0f2f5;
     color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     margin: 0;
-    padding: 2rem;
+    padding: 0;
+}
+
+header {
+    background-color: #fff;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #dddfe2;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
     color: #1c1e21;
+    margin: 0;
 }
 
-#app {
-    width: 80%;
-    max-width: 1200px;
-    background-color: #fff;
+.main-container {
+    display: flex;
+    gap: 2rem;
     padding: 2rem;
+    align-items: flex-start;
+}
+
+/* Left Column: Galleries */
+.gallery-column {
+    flex: 1;
+    background-color: #fff;
+    padding: 1rem;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .upload-section {
-    margin-bottom: 2rem;
+    text-align: center;
+    margin-bottom: 1rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid #dddfe2;
-    text-align: center;
 }
 
-#process-button, #download-button {
-    background-color: #1877f2;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-size: 16px;
+.custom-file-upload {
+    display: inline-block;
+    padding: 10px 20px;
     cursor: pointer;
-    margin-top: 1rem;
+    background-color: #e4e6eb;
+    color: #4b4f56;
+    border-radius: 6px;
+    font-weight: bold;
 }
 
-#process-button:hover, #download-button:hover {
-    background-color: #166fe5;
+#image-input {
+    display: none;
 }
 
 .gallery-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 10px;
+    padding: 10px;
     border: 1px dashed #ccc;
     border-radius: 6px;
     min-height: 150px;
@@ -56,60 +69,87 @@ h1, h2 {
 }
 
 .gallery-container img {
-    max-width: 150px;
-    max-height: 150px;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     cursor: pointer;
+    border: 2px solid transparent;
 }
 
-/* Modal Styles */
-.modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
+.gallery-container img.selected {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px #1877f2;
+}
+
+#download-button {
     width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
+    margin-top: 1rem;
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 900px;
+/* Right Column: Editor */
+.editor-column {
+    flex: 2;
+    background-color: #fff;
+    padding: 1rem;
     border-radius: 8px;
-    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+#editor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #editor-canvas {
     border: 1px solid #ddd;
     margin-top: 1rem;
     max-width: 100%;
+    background-color: #f0f0f0;
 }
 
 #tools {
-    margin: 1rem 0;
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #f5f6f7;
+    border-radius: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 10px;
+    border: 1px solid #dddfe2;
+}
+
+.tool-btn, .mode-btn {
+    padding: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
 .tool-btn.active, .mode-btn.active {
     background-color: #1877f2;
     color: white;
     border-color: #1877f2;
+}
+
+.editor-actions {
+    margin-top: 1rem;
+}
+
+#save-changes-button, #download-button {
+    background-color: #42b72a;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#save-changes-button:hover, #download-button:hover {
+    background-color: #36a420;
 }

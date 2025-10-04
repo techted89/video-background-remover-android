@@ -4,16 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const gallery = document.getElementById('gallery');
     const resultsContainer = document.getElementById('results');
     const downloadButton = document.getElementById('download-button');
-
-    // Modal Elements
-    const editorModal = document.getElementById('editor-modal');
-    const editorCanvas = document.getElementById('editor-canvas');
-    const closeButton = document.querySelector('.close-button');
     const saveChangesButton = document.getElementById('save-changes-button');
+    const editorCanvas = document.getElementById('editor-canvas');
 
     let uploadedFiles = [];
     let processedImages = [];
-    let currentEditingFile = null;
     let currentEditingIndex = -1;
 
     class Editor {
@@ -25,10 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
             this.activeTool = 'tool-magic-wand';
             this.activeMode = 'mode-add';
             this.brushSize = 10;
-
             this.toolCanvas = document.createElement('canvas');
             this.toolCtx = this.toolCanvas.getContext('2d');
-
             this.initEventListeners();
         }
 
@@ -57,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let lassoPoints = [];
 
             this.canvas.addEventListener('mousedown', (e) => {
+                if (!this.originalImageData) return;
                 const rect = this.canvas.getBoundingClientRect();
                 const startX = e.clientX - rect.left;
                 const startY = e.clientY - rect.top;
@@ -71,13 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             this.canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
                 const rect = this.canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
 
-                if (this.activeTool === 'tool-brush' && isDrawing) {
+                if (this.activeTool === 'tool-brush') {
                     this.drawBrush(x, y);
-                } else if (this.activeTool === 'tool-lasso' && isDrawing) {
+                } else if (this.activeTool === 'tool-lasso') {
                     lassoPoints.push({ x: x, y: y });
                     this.drawLassoPath(lassoPoints);
                 }
@@ -93,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             this.canvas.addEventListener('click', (e) => {
+                if (!this.originalImageData) return;
                 const rect = this.canvas.getBoundingClientRect();
                 const x = Math.round(e.clientX - rect.left);
                 const y = Math.round(e.clientY - rect.top);
@@ -162,10 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             while (queue.length > 0) {
                 const [x, y] = queue.shift();
                 const currentIdx = (y * width + x) * 4;
-
-                const r = data[currentIdx];
-                const g = data[currentIdx + 1];
-                const b = data[currentIdx + 2];
+                const r = data[currentIdx], g = data[currentIdx + 1], b = data[currentIdx + 2];
                 const distance = Math.sqrt(Math.pow(r - startColor.r, 2) + Math.pow(g - startColor.g, 2) + Math.pow(b - startColor.b, 2));
 
                 if (distance < tolerance) {
@@ -218,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             finalCanvas.height = this.canvas.height;
             const finalCtx = finalCanvas.getContext('2d');
             finalCtx.putImageData(this.originalImageData, 0, 0);
-            finalCtx.globalCompositeOperation = 'destination-out';
+            finalCtx.globalCompositeOperation = 'destination-in';
             finalCtx.putImageData(this.maskData, 0, 0);
             return new Promise(resolve => finalCanvas.toBlob(resolve, 'image/png'));
         }
@@ -246,33 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const editor = new Editor(editorCanvas);
 
-    // Modal Handling
-    closeButton.onclick = () => editorModal.style.display = 'none';
-    window.onclick = (event) => {
-        if (event.target == editorModal) {
-            editorModal.style.display = 'none';
-        }
-    };
-
-    gallery.addEventListener('click', (event) => {
-        if (event.target.tagName === 'IMG') {
-            currentEditingIndex = Array.from(gallery.children).indexOf(event.target);
-            currentEditingFile = uploadedFiles[currentEditingIndex];
-            if (currentEditingFile) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        editor.setImage(img);
-                        editorModal.style.display = 'block';
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(currentEditingFile);
-            }
-        }
-    });
-
     // File Upload Handling
     imageInput.addEventListener('change', (event) => {
         gallery.innerHTML = '';
@@ -289,7 +255,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 reader.onload = (e) => {
                     const img = document.createElement('img');
                     img.src = e.target.result;
+                    img.dataset.index = uploadedFiles.length - 1;
                     gallery.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+
+    // Gallery Click Handling
+    gallery.addEventListener('click', (event) => {
+        if (event.target.tagName === 'IMG') {
+            document.querySelectorAll('#gallery img').forEach(img => img.classList.remove('selected'));
+            event.target.classList.add('selected');
+
+            currentEditingIndex = parseInt(event.target.dataset.index, 10);
+            const file = uploadedFiles[currentEditingIndex];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => editor.setImage(img);
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
@@ -298,16 +286,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Save and Download Logic
     saveChangesButton.addEventListener('click', async () => {
+        if (currentEditingIndex === -1) {
+            alert("Please select an image to edit.");
+            return;
+        }
         const blob = await editor.getProcessedImage();
         const url = URL.createObjectURL(blob);
+        const originalFile = uploadedFiles[currentEditingIndex];
 
-        const newResult = { name: currentEditingFile.name.replace(/\.[^/.]+$/, ".png"), url: url, blob: blob };
+        const newResult = {
+            name: originalFile.name.replace(/\.[^/.]+$/, ".png"),
+            url: url,
+            blob: blob,
+            originalIndex: currentEditingIndex
+        };
 
         const existingResultIndex = processedImages.findIndex(p => p.originalIndex === currentEditingIndex);
         if (existingResultIndex > -1) {
-            processedImages[existingResultIndex] = { ...newResult, originalIndex: currentEditingIndex };
+            processedImages[existingResultIndex] = newResult;
         } else {
-            processedImages.push({ ...newResult, originalIndex: currentEditingIndex });
+            processedImages.push(newResult);
         }
 
         resultsContainer.innerHTML = '';
@@ -320,8 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (processedImages.length > 0) {
             downloadButton.style.display = 'block';
         }
-
-        editorModal.style.display = 'none';
     });
 
     downloadButton.addEventListener('click', () => {

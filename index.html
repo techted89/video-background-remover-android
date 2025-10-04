@@ -3,48 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batch Background Remover</title>
+    <title>Advanced Image Editor</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
-    <h1>Batch Image Background Remover</h1>
-    <p>Upload multiple JPG or JPEG files. Click an image to open the editor and remove its background.</p>
+    <header>
+        <h1>Advanced Image Editor</h1>
+        <p>Upload images, click a thumbnail to edit, and download your results.</p>
+    </header>
 
-    <div id="app">
-        <div class="upload-section">
-            <input type="file" id="image-input" accept="image/jpeg,image/jpg" multiple>
+    <div class="main-container">
+        <!-- Left Column: Galleries -->
+        <div class="gallery-column">
+            <div class="upload-section">
+                <label for="image-input" class="custom-file-upload">Choose Files</label>
+                <input type="file" id="image-input" accept="image/jpeg,image/jpg" multiple>
+            </div>
+
+            <h2>Uploaded Images</h2>
+            <div id="gallery" class="gallery-container"></div>
+
+            <h2>Processed Images</h2>
+            <div id="results" class="gallery-container"></div>
+
+            <button id="download-button" style="display:none;">Download All as ZIP</button>
         </div>
 
-        <h2>Uploaded Images</h2>
-        <div id="gallery" class="gallery-container"></div>
+        <!-- Right Column: Editor -->
+        <div class="editor-column">
+            <h2>Editor</h2>
+            <div id="editor-container">
+                <div id="tools">
+                    <button id="tool-eyedropper" class="tool-btn" title="Eyedropper"></button>
+                    <button id="tool-magic-wand" class="tool-btn active" title="Magic Wand"></button>
+                    <button id="tool-brush" class="tool-btn" title="Brush"></button>
+                    <input type="range" id="brush-size" min="1" max="50" value="10" title="Brush Size">
 
-        <h2>Processed Images</h2>
-        <div id="results" class="gallery-container"></div>
-
-        <button id="download-button" style="display:none;">Download All as ZIP</button>
-    </div>
-
-    <!-- Editor Modal -->
-    <div id="editor-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Edit Image</h2>
-            <div id="tools">
-                <label>Tool:</label>
-                <button id="tool-eyedropper" class="tool-btn">Eyedropper</button>
-                <button id="tool-magic-wand" class="tool-btn active">Magic Wand</button>
-                <button id="tool-brush" class="tool-btn">Brush</button>
-                <label for="brush-size">Size:</label>
-                <input type="range" id="brush-size" min="1" max="50" value="10">
-
-                <label>Mode:</label>
-                <button id="mode-add" class="mode-btn active">Add</button>
-                <button id="mode-subtract" class="mode-btn">Subtract</button>
-            </div>
-            <canvas id="editor-canvas"></canvas>
-            <div class="modal-actions">
-                <button id="save-changes-button">Save Changes</button>
+                    <div class="mode-switcher">
+                        <button id="mode-add" class="mode-btn active" title="Add to Selection">Add</button>
+                        <button id="mode-subtract" class="mode-btn" title="Subtract from Selection">Subtract</button>
+                    </div>
+                </div>
+                <canvas id="editor-canvas"></canvas>
+                <div class="editor-actions">
+                    <button id="save-changes-button">Apply & Save Changes</button>
+                </div>
             </div>
         </div>
     </div>
