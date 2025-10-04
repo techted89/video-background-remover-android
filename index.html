@@ -9,16 +9,11 @@
 </head>
 <body>
     <h1>Batch Image Background Remover</h1>
-    <p>Upload multiple JPG or JPEG files, select the background color to remove, and click the button.</p>
+    <p>Upload multiple JPG or JPEG files. Click an image to open the editor and remove its background.</p>
 
     <div id="app">
         <div class="upload-section">
             <input type="file" id="image-input" accept="image/jpeg,image/jpg" multiple>
-            <div class="controls">
-                <label for="color-picker">Background Color:</label>
-                <input type="color" id="color-picker" value="#ffffff">
-                <button id="process-button">Remove Backgrounds</button>
-            </div>
         </div>
 
         <h2>Uploaded Images</h2>
@@ -28,6 +23,30 @@
         <div id="results" class="gallery-container"></div>
 
         <button id="download-button" style="display:none;">Download All as ZIP</button>
+    </div>
+
+    <!-- Editor Modal -->
+    <div id="editor-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Edit Image</h2>
+            <div id="tools">
+                <label>Tool:</label>
+                <button id="tool-eyedropper" class="tool-btn">Eyedropper</button>
+                <button id="tool-magic-wand" class="tool-btn active">Magic Wand</button>
+                <button id="tool-brush" class="tool-btn">Brush</button>
+                <label for="brush-size">Size:</label>
+                <input type="range" id="brush-size" min="1" max="50" value="10">
+
+                <label>Mode:</label>
+                <button id="mode-add" class="mode-btn active">Add</button>
+                <button id="mode-subtract" class="mode-btn">Subtract</button>
+            </div>
+            <canvas id="editor-canvas"></canvas>
+            <div class="modal-actions">
+                <button id="save-changes-button">Save Changes</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
