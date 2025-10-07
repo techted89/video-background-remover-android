@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.activeTool = 'tool-magic-wand';
             this.activeMode = 'mode-add';
             this.brushSize = 10;
+            this.selectedColor = { r: 0, g: 0, b: 255 }; // Default to blue
             this.toolCanvas = document.createElement('canvas');
             this.toolCtx = this.toolCanvas.getContext('2d');
             this.initEventListeners();
@@ -103,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pickColor(x, y) {
             const pixel = this.ctx.getImageData(x, y, 1, 1).data;
-            alert(`Color: rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, ${pixel[3]})`);
+            this.selectedColor = { r: pixel[0], g: pixel[1], b: pixel[2] };
+            document.getElementById('color-swatch').style.backgroundColor = `rgb(${this.selectedColor.r}, ${this.selectedColor.g}, ${this.selectedColor.b})`;
         }
 
         drawBrush(x, y) {
@@ -144,8 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         floodFill(startX, startY) {
             const { width, height, data } = this.originalImageData;
-            const startIdx = (startY * width + startX) * 4;
-            const startColor = { r: data[startIdx], g: data[startIdx + 1], b: data[startIdx + 2] };
+            const startColor = this.selectedColor; // Use the color from the swatch
             const tolerance = 20;
 
             const queue = [[startX, startY]];
@@ -195,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setImage(image) {
+            this.canvas.classList.remove('ready');
             this.canvas.width = image.width;
             this.canvas.height = image.height;
             this.toolCanvas.width = image.width;
@@ -203,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.originalImageData = this.ctx.getImageData(0, 0, image.width, image.height);
             this.maskData = this.ctx.createImageData(image.width, image.height);
             this.redrawCanvas();
+            this.canvas.classList.add('ready');
         }
 
         getProcessedImage() {
